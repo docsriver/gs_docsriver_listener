@@ -1,0 +1,11 @@
+[Unit]
+Description=Ghostscript python http proxy
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/bin/bash -c 'command -v gs > /dev/null && command -v ps2pdf > /dev/null'
+ExecStart=/usr/bin/python /opt/compose/docsriver_scripts/gs_docs_river_listener.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
