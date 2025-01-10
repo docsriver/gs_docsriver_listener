@@ -8,7 +8,7 @@ import json
 import re
 
 PORT_NUMBER = 9080
-DOCS_RIVER_FILES_PATH = '/opt/compose/docsriver/virtual_pdfs_output'
+DOCS_RIVER_FILES_PATH = '/opt/docsriver/virtual_pdfs_output'
 server = None
 
 def clean_output(stdout):
