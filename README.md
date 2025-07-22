@@ -8,17 +8,17 @@
 # Запуск
 Чтобы запустить сервис:
 ```shell
-sudo systemctl start gs_docsriver-Listener.service
+sudo systemctl start gs_docsriver_listener.service
 ```
 
 Чтобы включить автозапуск при старте системы:
 ```shell
-sudo systemctl enable gs_docsriver-Listener.service
+sudo systemctl enable gs_docsriver_listener.service
 ```
 
 Посмотреть статус:
 ```shell
-sudo systemctl status gs_docsriver-Listener.service
+sudo systemctl status gs_docsriver_listener.service
 ```
 
 Посмотреть логи:
@@ -28,10 +28,10 @@ sudo journalctl _SYSTEMD_UNIT=gs_docsriver_listener.service
 
 Чтобы остановить:
 ```shell
-sudo systemctl stop gs_docsriver-Listener.service
+sudo systemctl stop gs_docsriver_listener.service
 ```
 
 Чтобы отключить автозапуск при старте системы:
 ```shell
-sudo systemctl disable gs_docsriver-Listener.service
+sudo systemctl disable gs_docsriver_listener.service
 ```
