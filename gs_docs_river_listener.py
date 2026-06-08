@@ -3,12 +3,13 @@
 import http.server
 import json
 import os.path
+import shutil
 import subprocess
 import json
 import re
 
 PORT_NUMBER = 9080
-DOCS_RIVER_FILES_PATH = '/opt/docsriver/virtual_pdfs_output'
+DOCS_RIVER_FILES_PATH = os.environ.get('DOCS_RIVER_FILES_PATH', '/opt/docsriver/job_files')
 server = None
 
 def clean_output(stdout):
@@ -33,12 +34,20 @@ class GsCommandsHandler(http.server.BaseHTTPRequestHandler):
 
         data = json.loads(post_body)
 
+        if data["command"] == "info":
+            (status, output, err) = self._run_info_command()
+            self._write_command_response(output, err)
+            return
         if data["command"] == "ping":
             (status, output, err) = self._run_ping_command(data["testfile"])
             self._write_command_response(output, err)
             return
         if data["command"] == "ps2pdf":
             (status, output, err) = self._run_ps_to_pdf_command(data["psfile"], data["pdffile"])
+            self._write_command_response(output, err)
+            return
+        if data["command"] == "pcl2pdf":
+            (status, output, err) = self._run_pcl_to_pdf_command(data["pclfile"], data["pdffile"])
             self._write_command_response(output, err)
             return
         if data["command"] == "countPages":
@@ -76,6 +85,14 @@ class GsCommandsHandler(http.server.BaseHTTPRequestHandler):
         else:
             return file_name
 
+    def _run_info_command(self):
+        info = {
+            "gs": shutil.which("gs") is not None,
+            "gpcl6": shutil.which("gpcl6") is not None,
+        }
+        print("Info:", info)
+        return 200, json.dumps(info), None
+
     def _run_ping_command(self, testfile: str):
         testfile_path = os.path.join(DOCS_RIVER_FILES_PATH, self._normalize_file_name(testfile))
         with open(testfile_path, 'r') as file:
@@ -90,6 +107,16 @@ class GsCommandsHandler(http.server.BaseHTTPRequestHandler):
         print("PS File:", ps_path)
         print("PDF File:", pdf_path)
         p = subprocess.Popen(["ps2pdf", ps_path, pdf_path], stdout=subprocess.PIPE)
+        p_status = p.wait()
+        (p_output, p_error) = p.communicate()
+        return p_status, p_output, p_error
+
+    def _run_pcl_to_pdf_command(self, pcl_file: str, pdf_file: str):
+        pcl_path = os.path.join(DOCS_RIVER_FILES_PATH, self._normalize_file_name(pcl_file))
+        pdf_path = os.path.join(DOCS_RIVER_FILES_PATH, self._normalize_file_name(pdf_file))
+        print("PCL File:", pcl_path)
+        print("PDF File:", pdf_path)
+        p = subprocess.Popen(["gpcl6", "-sDEVICE=pdfwrite", "-o", pdf_path, pcl_path], stdout=subprocess.PIPE)
         p_status = p.wait()
         (p_output, p_error) = p.communicate()
         return p_status, p_output, p_error
